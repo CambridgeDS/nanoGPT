@@ -92,7 +92,10 @@ class MLP(nn.Module):
         return x
 
 class Block(nn.Module):
-
+    def clamped_linear(self, x):
+        """Clamp values to be between 0 and 1."""
+        return torch.clamp(x, min=0, max=1)
+    
     def __init__(self, config):
         super().__init__()
         self.ln_1 = LayerNorm(config.n_embd, bias=config.bias)
@@ -101,6 +104,7 @@ class Block(nn.Module):
         self.mlp = MLP(config)
 
     def forward(self, x):
+        #x = x + self.attn(self.clamped_linear(self.ln_1(x)))
         x = x + self.attn(self.ln_1(x))
         x = x + self.mlp(self.ln_2(x))
         return x
